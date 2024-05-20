@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Film Sorgulama</title>
+    <style>
+        body {
+            background-color: #1f1f1f;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #ff6600;
+        }
+
+        h2 {
+            color: #0073ff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        th {
+            background-color: #333;
+        }
+
+        th:hover {
+            cursor: pointer;
+            background-color: #444;
+        }
+
+        tr:nth-child(even) {
+            background-color: #222;
+        }
+
+        .film-details {
+            display: none;
+        }
+
+        tr:hover .film-details {
+            display: block;
+        }
+
+        .film-details {
+            background-color: #444;
+            padding: 10px;
+        }
+
+        form {
+            background-color: #333;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        input[type="text"],
+        select {
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            background-color: #555;
+            color: #fff;
+        }
+
+        button[type="submit"] {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #1bd114;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #ff8000;
+        }
+
+        .delete-button {
+            background-color: #d9534f;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .delete-button:hover {
+            background-color: #c9302c;
+        }
+    </style>
+</head>
+<body>
+    <h1>Film Sorgulama</h1>
+    <form action="/" method="POST">
+        <input type="text" name="film_adi" placeholder="Film adı girin">
+        <select name="film_turu">
+            <option value="">Tür Seçin</option>
+            {% for tur in film_turleri %}
+            <option value="{{ tur }}">{{ tur }}</option>
+            {% endfor %}
+        </select>
+        <select name="ulke">
+            <option value="">Ülke Seçin</option>
+            {% for ulke in ulkeler %}
+            <option value="{{ ulke }}">{{ ulke }}</option>
+            {% endfor %}
+        </select>
+        <select name="dil">
+            <option value="">Dil Seçin</option>
+            {% for dil in diller %}
+            <option value="{{ dil }}">{{ dil }}</option>
+            {% endfor %}
+        </select>
+        <select name="prod_sirketi">
+            <option value="">Prod. Şirketi Seçin</option>
+            {% for sirket in prod_sirketleri %}
+            <option value="{{ sirket }}">{{ sirket }}</option>
+            {% endfor %}
+        </select>
+        <select name="sirala">
+            <option value="">Sırala</option>
+            <option value="title" {% if sirala == 'title' %} selected {% endif %}>İsim</option>
+            <option value="release_year" {% if sirala == 'release_year' %} selected {% endif %}>Yıl</option>
+            <option value="imdb_rating" {% if sirala == 'imdb_rating' %} selected {% endif %}>IMDB Puanı</option>
+            <option value="duration_minutes" {% if sirala == 'duration_minutes' %} selected {% endif %}>Süre</option>
+        </select>
+        <button type="submit">Ara</button>
+    </form>
+    <form action="/ekle" method="POST">
+        <h2>Film Ekle</h2>
+        <input type="text" name="film_adi" placeholder="Film Adı">
+        <input type="text" name="yonetmen" placeholder="Yönetmen">
+        <input type="text" name="tur" placeholder="Tür">
+        <input type="text" name="yil" placeholder="Yıl">
+        <input type="text" name="sure" placeholder="Süre">
+        <input type="text" name="imdb_puani" placeholder="IMDB Puanı">
+        <input type="text" name="ulke" placeholder="Ülke">
+        <input type="text" name="dil" placeholder="Dil">
+        <input type="text" name="prod_sirketi" placeholder="Prod. Şirketi">
+        <button type="submit">Ekle</button>
+    </form>
+    <hr>
+    <h2>Sonuçlar:</h2>
+    <table>
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">İsim</th>
+                <th onclick="sortTable(1)">Yönetmen</th>
+                <th onclick="sortTable(2)">Tür</th>
+                <th onclick="sortTable(3)">Yıl</th>
+                <th onclick="sortTable(4)">Süre</th>
+                <th onclick="sortTable(5)">IMDB Puanı</th>
+                <th onclick="sortTable(6)">Ülke</th>
+                <th onclick="sortTable(7)">Dil</th>
+                <th onclick="sortTable(8)">Prod. Şirketi</th>
+                <th>Sil</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for film in films %}
+            <tr>
+                <td>{{ film[1] }}</td>
+                <td>{{ film[2] }}</td>
+                <td>{{ film[3] }}</td>
+                <td>{{ film[4] }}</td>
+                <td>{{ film[5] }}</td>
+                <td>{{ film[6] }}</td>
+                <td>{{ film[7] }}</td>
+                <td>{{ film[8] }}</td>
+                <td>{{ film[9] }}</td>
+                <td><button class="delete-button" onclick="confirmDelete({{ film[0] }})">Sil</button></td>
+            </tr>
+            <tr class="film-details">
+                <td colspan="9">
+                    <strong>IMDB Puanı:</strong> {{ film[6] }}<br>
+                    <strong>Ülke:</strong> {{ film[7] }}<br>
+                    <strong>Dil:</strong> {{ film[8] }}<br>
+                    <strong>Prod. Şirketi:</strong> {{ film[9] }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function sortTable(columnIndex) {
+            var table, rows, switching, i, x, y, shouldSwitch;
+            table = document.querySelector("table");
+            switching = true;
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("td")[columnIndex];
+                    y = rows[i + 1].getElementsByTagName("td")[columnIndex];
+                    if (isNaN(parseFloat(x.innerHTML))) {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else {
+                        if (parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+        }
+
+        function confirmDelete(filmId) {
+            if (confirm("Bu filmi silmek istediğinizden emin misiniz?")) {
+                window.location.href = "/sil/" + filmId;
+            }
+        }
+    </script>
+</body>
+</html>
